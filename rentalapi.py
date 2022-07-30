@@ -1,7 +1,6 @@
-from flask import Flask, request
+from flask import Flask, jsonify, request
 import firebase_admin
 from firebase_admin import credentials, firestore
-import json
 from flask_cors import CORS
 
 cred = credentials.Certificate("serviceAccountKey.json")
@@ -45,10 +44,13 @@ def addRental():
 #get game by rentalUser
 @app.route('/rentals', methods=['GET'])
 def getRentals():
+    listOfGames = []
+    i = 0
     rentalUser = request.args.get('rentalUser')
     games = db.collection('games').where("rentalUser", "==", rentalUser).get()
-    game = games[0].to_dict()
-    return json.dumps(game)
+    for i in games:
+        listOfGames.append(i.to_dict())
+    return jsonify(listOfGames)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=3005, debug=True)
