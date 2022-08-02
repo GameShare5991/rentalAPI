@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rentalapi-deployment
+  labels:
+    app: rentalapi
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: rentalapi
+  template:
+    metadata:
+      labels:
+        app: rentalapi
+    spec:
+      containers:
+        - name: rentalapi
+          image: jackjackzhou/rental-api
+          # imagePullPolicy: Never
+          ports:
+            - containerPort: 3005
+          volumeMounts:
+            - name: rental-app-key
+              mountPath: “/app”
+              readOnly: true
+      volumes:
+        - name: rental-app-key
+          secret:
+            secretName: rental-app-key
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: rental-service
+spec:
+  ports:
+  - port: 3005
+    targetPort: 3005
+  selector:
+    app: rentalapi
+  type: LoadBalancer
